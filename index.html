@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Habit Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f7f7f7;
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    form {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 0.5rem;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+
+    button {
+      padding: 0.5rem 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Today's Habits</h1>
+
+  <form id="habitForm">
+    <input type="text" id="habitInput" placeholder="New habit..." required />
+    <button type="submit">Add</button>
+  </form>
+
+  <ul id="habitList"></ul>
+
+  <script>
+    const habitForm = document.getElementById("habitForm");
+    const habitInput = document.getElementById("habitInput");
+    const habitList = document.getElementById("habitList");
+
+    const todayKey = `habits-${new Date().toISOString().slice(0, 10)}`;
+
+    let habits = JSON.parse(localStorage.getItem(todayKey)) || [];
+
+    function saveHabits() {
+      localStorage.setItem(todayKey, JSON.stringify(habits));
+    }
+
+    function renderHabits() {
+      habitList.innerHTML = "";
+      habits.forEach((habit, index) => {
+        const li = document.createElement("li");
+        const label = document.createElement("label");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = habit.done;
+        checkbox.addEventListener("change", () => {
+          habits[index].done = checkbox.checked;
+          saveHabits();
+        });
+
+        const text = document.createElement("span");
+        text.textContent = habit.name;
+
+        label.appendChild(checkbox);
+        label.appendChild(text);
+        li.appendChild(label);
+        habitList.appendChild(li);
+      });
+    }
+
+    habitForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const newHabit = habitInput.value.trim();
+      if (newHabit) {
+        habits.push({ name: newHabit, done: false });
+        saveHabits();
+        renderHabits();
+        habitInput.value = "";
+      }
+    });
+
+    renderHabits();
+  </script>
+</body>
+</html>
